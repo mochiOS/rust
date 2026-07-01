@@ -4,6 +4,8 @@
 #![doc(cfg(target_os = "linux"))]
 
 pub mod fs;
-pub mod net;
-pub mod process;
 pub mod raw;
+#[cfg(target_os = "linux")]
+pub mod net;
+#[cfg(target_os = "linux")]
+pub mod process;

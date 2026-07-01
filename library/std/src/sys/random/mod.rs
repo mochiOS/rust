@@ -1,3 +1,14 @@
+#[cfg(target_os = "mochios")]
+mod unsupported;
+#[cfg(target_os = "mochios")]
+pub fn fill_bytes(bytes: &mut [u8]) {
+    unsupported::fill_bytes(bytes)
+}
+#[cfg(target_os = "mochios")]
+pub fn hashmap_random_keys() -> (u64, u64) {
+    unsupported::hashmap_random_keys()
+}
+
 cfg_select! {
     // Tier 1
     any(target_os = "linux", target_os = "android") => {
@@ -102,11 +113,7 @@ cfg_select! {
         mod zkvm;
         pub use zkvm::fill_bytes;
     }
-    any(
-        all(target_family = "wasm", target_os = "unknown"),
-        target_os = "xous",
-        target_os = "vexos",
-    ) => {
+    any(all(target_family = "wasm", target_os = "unknown"), target_os = "xous", target_os = "vexos") => {
         // FIXME: finally remove std support for wasm32-unknown-unknown
         // FIXME: add random data generation to xous
         mod unsupported;
@@ -119,6 +126,7 @@ cfg_select! {
     target_os = "linux",
     target_os = "android",
     all(target_family = "wasm", target_os = "unknown"),
+    target_os = "mochios",
     all(target_os = "wasi", not(target_env = "p1")),
     target_os = "xous",
     target_os = "vexos",

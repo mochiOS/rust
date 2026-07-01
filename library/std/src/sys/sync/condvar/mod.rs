@@ -14,10 +14,7 @@ cfg_select! {
         mod futex;
         pub use futex::Condvar;
     }
-    any(
-        target_family = "unix",
-        target_os = "teeos",
-    ) => {
+    any(all(target_family = "unix", not(target_os = "mochios")), target_os = "teeos") => {
         mod pthread;
         pub use pthread::Condvar;
     }
