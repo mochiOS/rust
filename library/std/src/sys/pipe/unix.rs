@@ -19,6 +19,7 @@ pub fn pipe() -> io::Result<(Pipe, Pipe)> {
             target_os = "hurd",
             target_os = "illumos",
             target_os = "linux",
+            target_os = "mochios",
             target_os = "netbsd",
             target_os = "openbsd",
             target_os = "cygwin",

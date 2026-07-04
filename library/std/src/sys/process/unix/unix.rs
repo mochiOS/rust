@@ -347,7 +347,7 @@ impl Command {
         }
 
         // emscripten has no signal support.
-        #[cfg(not(target_os = "emscripten"))]
+        #[cfg(not(any(target_os = "emscripten", target_os = "mochios")))]
         {
             // Inherit the signal mask from the parent rather than resetting it (i.e. do not call
             // pthread_sigmask).
