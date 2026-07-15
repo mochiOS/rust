@@ -35,6 +35,10 @@ use libc::fstatat64;
     all(target_os = "linux", target_env = "musl"),
 ))]
 use libc::readdir as readdir64;
+#[cfg(any(all(target_os = "linux", not(target_env = "musl")), target_os = "hurd"))]
+use libc::readdir64;
+#[cfg(target_os = "l4re")]
+use libc::readdir64_r;
 #[cfg(not(any(
     target_os = "aix",
     target_os = "android",
@@ -51,10 +55,6 @@ use libc::readdir as readdir64;
     target_os = "wasi",
 )))]
 use libc::readdir_r as readdir64_r;
-#[cfg(any(all(target_os = "linux", not(target_env = "musl")), target_os = "hurd"))]
-use libc::readdir64;
-#[cfg(target_os = "l4re")]
-use libc::readdir64_r;
 use libc::{c_int, mode_t};
 #[cfg(target_os = "android")]
 use libc::{
@@ -97,7 +97,7 @@ use crate::sys::time::SystemTime;
 use crate::sys::weak::syscall;
 #[cfg(target_os = "android")]
 use crate::sys::weak::weak;
-use crate::sys::{AsInner, AsInnerMut, FromInner, IntoInner, cvt, cvt_r};
+use crate::sys::{cvt, cvt_r, AsInner, AsInnerMut, FromInner, IntoInner};
 use crate::{mem, ptr};
 
 pub struct File(FileDesc);
@@ -1145,6 +1145,7 @@ impl DirEntry {
         target_os = "illumos",
         target_os = "l4re",
         target_os = "linux",
+        target_os = "mochios",
         target_os = "nto",
         target_os = "redox",
         target_os = "rtems",
@@ -2429,8 +2430,8 @@ mod remove_dir_impl {
     use libc::{fdopendir, openat64 as openat, unlinkat};
 
     use super::{
-        AsRawFd, DirEntry, DirStream, FromRawFd, InnerReadDir, IntoRawFd, OwnedFd, RawFd, ReadDir,
-        lstat,
+        lstat, AsRawFd, DirEntry, DirStream, FromRawFd, InnerReadDir, IntoRawFd, OwnedFd, RawFd,
+        ReadDir,
     };
     use crate::ffi::CStr;
     use crate::io;

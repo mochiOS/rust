@@ -831,52 +831,164 @@ pub trait MetadataExt {
 #[stable(feature = "metadata_ext", since = "1.1.0")]
 impl MetadataExt for fs::Metadata {
     fn dev(&self) -> u64 {
-        self.st_dev()
+        #[cfg(target_os = "mochios")]
+        {
+            self.as_inner().as_inner().st_dev as u64
+        }
+        #[cfg(not(target_os = "mochios"))]
+        {
+            self.st_dev()
+        }
     }
     fn ino(&self) -> u64 {
-        self.st_ino()
+        #[cfg(target_os = "mochios")]
+        {
+            self.as_inner().as_inner().st_ino as u64
+        }
+        #[cfg(not(target_os = "mochios"))]
+        {
+            self.st_ino()
+        }
     }
     fn mode(&self) -> u32 {
-        self.st_mode()
+        #[cfg(target_os = "mochios")]
+        {
+            self.as_inner().as_inner().st_mode as u32
+        }
+        #[cfg(not(target_os = "mochios"))]
+        {
+            self.st_mode()
+        }
     }
     fn nlink(&self) -> u64 {
-        self.st_nlink()
+        #[cfg(target_os = "mochios")]
+        {
+            self.as_inner().as_inner().st_nlink as u64
+        }
+        #[cfg(not(target_os = "mochios"))]
+        {
+            self.st_nlink()
+        }
     }
     fn uid(&self) -> u32 {
-        self.st_uid()
+        #[cfg(target_os = "mochios")]
+        {
+            self.as_inner().as_inner().st_uid as u32
+        }
+        #[cfg(not(target_os = "mochios"))]
+        {
+            self.st_uid()
+        }
     }
     fn gid(&self) -> u32 {
-        self.st_gid()
+        #[cfg(target_os = "mochios")]
+        {
+            self.as_inner().as_inner().st_gid as u32
+        }
+        #[cfg(not(target_os = "mochios"))]
+        {
+            self.st_gid()
+        }
     }
     fn rdev(&self) -> u64 {
-        self.st_rdev()
+        #[cfg(target_os = "mochios")]
+        {
+            self.as_inner().as_inner().st_rdev as u64
+        }
+        #[cfg(not(target_os = "mochios"))]
+        {
+            self.st_rdev()
+        }
     }
     fn size(&self) -> u64 {
-        self.st_size()
+        #[cfg(target_os = "mochios")]
+        {
+            self.as_inner().as_inner().st_size as u64
+        }
+        #[cfg(not(target_os = "mochios"))]
+        {
+            self.st_size()
+        }
     }
     fn atime(&self) -> i64 {
-        self.st_atime()
+        #[cfg(target_os = "mochios")]
+        {
+            self.as_inner().as_inner().st_atime as i64
+        }
+        #[cfg(not(target_os = "mochios"))]
+        {
+            self.st_atime()
+        }
     }
     fn atime_nsec(&self) -> i64 {
-        self.st_atime_nsec()
+        #[cfg(target_os = "mochios")]
+        {
+            self.as_inner().as_inner().st_atime_nsec as i64
+        }
+        #[cfg(not(target_os = "mochios"))]
+        {
+            self.st_atime_nsec()
+        }
     }
     fn mtime(&self) -> i64 {
-        self.st_mtime()
+        #[cfg(target_os = "mochios")]
+        {
+            self.as_inner().as_inner().st_mtime as i64
+        }
+        #[cfg(not(target_os = "mochios"))]
+        {
+            self.st_mtime()
+        }
     }
     fn mtime_nsec(&self) -> i64 {
-        self.st_mtime_nsec()
+        #[cfg(target_os = "mochios")]
+        {
+            self.as_inner().as_inner().st_mtime_nsec as i64
+        }
+        #[cfg(not(target_os = "mochios"))]
+        {
+            self.st_mtime_nsec()
+        }
     }
     fn ctime(&self) -> i64 {
-        self.st_ctime()
+        #[cfg(target_os = "mochios")]
+        {
+            self.as_inner().as_inner().st_ctime as i64
+        }
+        #[cfg(not(target_os = "mochios"))]
+        {
+            self.st_ctime()
+        }
     }
     fn ctime_nsec(&self) -> i64 {
-        self.st_ctime_nsec()
+        #[cfg(target_os = "mochios")]
+        {
+            self.as_inner().as_inner().st_ctime_nsec as i64
+        }
+        #[cfg(not(target_os = "mochios"))]
+        {
+            self.st_ctime_nsec()
+        }
     }
     fn blksize(&self) -> u64 {
-        self.st_blksize()
+        #[cfg(target_os = "mochios")]
+        {
+            self.as_inner().as_inner().st_blksize as u64
+        }
+        #[cfg(not(target_os = "mochios"))]
+        {
+            self.st_blksize()
+        }
     }
     fn blocks(&self) -> u64 {
-        self.st_blocks()
+        #[cfg(target_os = "mochios")]
+        {
+            self.as_inner().as_inner().st_blocks as u64
+        }
+        #[cfg(not(target_os = "mochios"))]
+        {
+            self.st_blocks()
+        }
     }
     #[cfg(target_os = "vxworks")]
     fn attrib(&self) -> u8 {
@@ -1008,7 +1120,14 @@ pub trait DirEntryExt {
 #[stable(feature = "dir_entry_ext", since = "1.1.0")]
 impl DirEntryExt for fs::DirEntry {
     fn ino(&self) -> u64 {
-        self.as_inner().ino()
+        #[cfg(target_os = "mochios")]
+        {
+            self.as_inner().ino()
+        }
+        #[cfg(not(target_os = "mochios"))]
+        {
+            self.as_inner().ino()
+        }
     }
 }
 

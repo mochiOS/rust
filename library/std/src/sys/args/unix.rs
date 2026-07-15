@@ -6,19 +6,53 @@
 #![allow(dead_code)] // runtime init functions not used during testing
 
 pub use super::common::Args;
+#[cfg(target_os = "mochios")]
+use crate::ffi::c_char;
 use crate::ffi::CStr;
 #[cfg(target_os = "hermit")]
 use crate::os::hermit::ffi::OsStringExt;
 #[cfg(not(target_os = "hermit"))]
 use crate::os::unix::ffi::OsStringExt;
+#[cfg(target_os = "mochios")]
+use crate::ptr;
+#[cfg(target_os = "mochios")]
+use crate::sync::atomic::{AtomicIsize, AtomicPtr, Ordering};
+
+#[cfg(target_os = "mochios")]
+static ARGC: AtomicIsize = AtomicIsize::new(0);
+#[cfg(target_os = "mochios")]
+static ARGV: AtomicPtr<*const u8> = AtomicPtr::new(ptr::null_mut());
+
+#[cfg(target_os = "mochios")]
+unsafe fn mochios_init(argc: isize, argv: *const *const u8) {
+    ARGC.store(argc, Ordering::Relaxed);
+    ARGV.store(argv as *mut *const u8, Ordering::Relaxed);
+}
+
+#[cfg(target_os = "mochios")]
+fn mochios_argc_argv() -> (isize, *const *const c_char) {
+    let argv = ARGV.load(Ordering::Relaxed);
+    let argc = if argv.is_null() { 0 } else { ARGC.load(Ordering::Relaxed) };
+    (argc, argv.cast())
+}
 
 /// One-time global initialization.
 pub unsafe fn init(argc: isize, argv: *const *const u8) {
-    unsafe { imp::init(argc, argv) }
+    #[cfg(target_os = "mochios")]
+    unsafe {
+        mochios_init(argc, argv);
+    }
+    #[cfg(not(target_os = "mochios"))]
+    unsafe {
+        imp::init(argc, argv)
+    }
 }
 
 /// Returns the command line arguments
 pub fn args() -> Args {
+    #[cfg(target_os = "mochios")]
+    let (argc, argv) = mochios_argc_argv();
+    #[cfg(not(target_os = "mochios"))]
     let (argc, argv) = imp::argc_argv();
 
     let mut vec = Vec::with_capacity(argc as usize);
@@ -61,30 +95,7 @@ pub fn args() -> Args {
     Args::new(vec)
 }
 
-#[cfg(any(
-    target_os = "linux",
-    target_os = "android",
-    target_os = "freebsd",
-    target_os = "dragonfly",
-    target_os = "netbsd",
-    target_os = "openbsd",
-    target_os = "cygwin",
-    target_os = "solaris",
-    target_os = "illumos",
-    target_os = "emscripten",
-    target_os = "haiku",
-    target_os = "hermit",
-    target_os = "l4re",
-    target_os = "fuchsia",
-    target_os = "redox",
-    target_os = "vxworks",
-    target_os = "horizon",
-    target_os = "aix",
-    target_os = "nto",
-    target_os = "hurd",
-    target_os = "rtems",
-    target_os = "nuttx",
-))]
+#[cfg(all(not(target_os = "mochios"), not(target_vendor = "apple"), target_family = "unix"))]
 mod imp {
     use crate::ffi::c_char;
     use crate::ptr;

@@ -30,7 +30,7 @@ cfg_select! {
         mod uefi;
         use uefi as imp;
     }
-    target_family = "unix" => {
+    any(target_family = "unix", target_os = "mochios") => {
         mod unix;
         use unix as imp;
     }
@@ -54,6 +54,6 @@ cfg_select! {
 }
 
 pub use imp::{
-    JoinPathsError, SplitPaths, chdir, current_exe, getcwd, home_dir, join_paths, split_paths,
-    temp_dir,
+    chdir, current_exe, getcwd, home_dir, join_paths, split_paths, temp_dir, JoinPathsError,
+    SplitPaths,
 };

@@ -67,6 +67,8 @@ mod platform {
     pub use crate::os::l4re::*;
     #[cfg(target_os = "linux")]
     pub use crate::os::linux::*;
+    #[cfg(target_os = "mochios")]
+    pub use crate::os::linux::{fs, raw};
     #[cfg(target_os = "netbsd")]
     pub use crate::os::netbsd::*;
     #[cfg(target_os = "nto")]

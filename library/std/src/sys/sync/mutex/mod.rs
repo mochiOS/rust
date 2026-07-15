@@ -17,10 +17,7 @@ cfg_select! {
         mod fuchsia;
         pub use fuchsia::Mutex;
     }
-    any(
-        target_family = "unix",
-        target_os = "teeos",
-    ) => {
+    any(all(target_family = "unix", not(target_os = "mochios")), target_os = "teeos") => {
         mod pthread;
         pub use pthread::Mutex;
     }

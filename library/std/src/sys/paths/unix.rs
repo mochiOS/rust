@@ -370,7 +370,7 @@ pub fn current_exe() -> io::Result<PathBuf> {
     path.canonicalize()
 }
 
-#[cfg(any(target_os = "espidf", target_os = "horizon", target_os = "vita"))]
+#[cfg(any(target_os = "espidf", target_os = "horizon", target_os = "vita", target_os = "mochios"))]
 pub fn current_exe() -> io::Result<PathBuf> {
     crate::sys::pal::unsupported::unsupported()
 }

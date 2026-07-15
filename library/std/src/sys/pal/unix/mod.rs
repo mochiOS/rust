@@ -15,7 +15,14 @@ pub mod weak;
 #[cfg(target_os = "espidf")]
 pub fn init(_argc: isize, _argv: *const *const u8, _sigpipe: u8) {}
 
+#[cfg(target_os = "mochios")]
+// SAFETY: must be called only once during runtime initialization.
+pub unsafe fn init(argc: isize, argv: *const *const u8, _sigpipe: u8) {
+    crate::sys::args::init(argc, argv);
+}
+
 #[cfg(not(target_os = "espidf"))]
+#[cfg(not(target_os = "mochios"))]
 #[cfg_attr(target_os = "vita", allow(unused_variables))]
 // SAFETY: must be called only once during runtime initialization.
 // NOTE: this is not guaranteed to run, for example when Rust code is called externally.
@@ -365,7 +372,13 @@ cfg_select! {
     _ => {}
 }
 
-#[cfg(any(target_os = "espidf", target_os = "horizon", target_os = "vita", target_os = "nuttx"))]
+#[cfg(any(
+    target_os = "espidf",
+    target_os = "horizon",
+    target_os = "vita",
+    target_os = "nuttx",
+    target_os = "mochios"
+))]
 pub mod unsupported {
     use crate::io;
 
