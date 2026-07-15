@@ -95,6 +95,7 @@ pub mod io;
 pub mod net;
 pub mod process;
 pub mod raw;
+#[cfg(not(target_os = "mochios"))]
 pub mod thread;
 pub mod xdg;
 
@@ -126,5 +127,6 @@ pub mod prelude {
     pub use super::process::{CommandExt, ExitStatusExt};
     #[doc(no_inline)]
     #[stable(feature = "rust1", since = "1.0.0")]
+    #[cfg(not(target_os = "mochios"))]
     pub use super::thread::JoinHandleExt;
 }

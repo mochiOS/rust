@@ -7,6 +7,7 @@ pub mod conf;
 pub mod fuchsia;
 pub mod futex;
 pub mod stack_overflow;
+#[cfg(not(target_os = "mochios"))]
 pub mod sync;
 pub mod thread_parking;
 pub mod time;
