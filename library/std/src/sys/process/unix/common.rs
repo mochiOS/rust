@@ -73,6 +73,29 @@ cfg_select! {
             return 0;
         }
     }
+    target_os = "mochios" => {
+        #[allow(dead_code)]
+        pub unsafe fn sigemptyset(set: *mut libc::sigset_t) -> libc::c_int {
+            if set.is_null() {
+                crate::sys::io::set_errno(libc::EINVAL);
+                return -1;
+            }
+            unsafe { set.cast::<u32>().write(0) };
+            0
+        }
+
+        #[allow(dead_code)]
+        pub unsafe fn sigaddset(set: *mut libc::sigset_t, signum: libc::c_int) -> libc::c_int {
+            let bit = signum - 1;
+            if set.is_null() || !(0..32).contains(&bit) {
+                crate::sys::io::set_errno(libc::EINVAL);
+                return -1;
+            }
+            let raw = set.cast::<u32>();
+            unsafe { raw.write(raw.read() | (1 << bit)) };
+            0
+        }
+    }
     _ => {
         #[allow(unused_imports)]
         pub use libc::{sigemptyset, sigaddset};
