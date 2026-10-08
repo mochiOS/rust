@@ -4,6 +4,32 @@ fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     let target_arch = env::var("CARGO_CFG_TARGET_ARCH").expect("CARGO_CFG_TARGET_ARCH was not set");
     let target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS was not set");
+    if target_os == "mochios" {
+        // Native libraries passed through link-arg are otherwise invisible to
+        // Cargo's dependency tracking. A runtime update must relink every std
+        // consumer, including services needed before POSIX is available.
+        if let Ok(flags) = env::var("CARGO_ENCODED_RUSTFLAGS") {
+            if let Some(sysroot) = flags
+                .split('\u{1f}')
+                .find_map(|flag| flag.strip_prefix("link-arg=--sysroot="))
+            {
+                let sysroot = std::path::Path::new(sysroot);
+                for library in ["lib/libc.a", "lib/libm.a"] {
+                    println!("cargo:rerun-if-changed={}", sysroot.join(library).display());
+                }
+                if let Some(sdk) = sysroot.parent() {
+                    for library in [
+                        "lib/crt0.o",
+                        "lib/linker.ld",
+                        "lib/libmochi_user_newlib_runtime.a",
+                        "lib/libgcc.a",
+                    ] {
+                        println!("cargo:rerun-if-changed={}", sdk.join(library).display());
+                    }
+                }
+            }
+        }
+    }
     let target_vendor =
         env::var("CARGO_CFG_TARGET_VENDOR").expect("CARGO_CFG_TARGET_VENDOR was not set");
     let target_env = env::var("CARGO_CFG_TARGET_ENV").expect("CARGO_CFG_TARGET_ENV was not set");
