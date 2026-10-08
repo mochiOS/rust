@@ -6,6 +6,7 @@
     target_os = "openbsd",
     target_os = "dragonfly",
     target_os = "fuchsia",
+    target_os = "mochios",
 ))]
 
 use crate::sync::atomic::Atomic;
@@ -20,6 +21,39 @@ pub type Primitive = u32;
 pub type SmallFutex = Atomic<SmallPrimitive>;
 /// Must be the underlying type of SmallFutex
 pub type SmallPrimitive = u32;
+
+#[cfg(target_os = "mochios")]
+unsafe extern "C" {
+    fn __mochios_wait_on_address_u32(
+        address: *const Atomic<u32>,
+        expected: u32,
+        timeout_nanoseconds: u64,
+    ) -> u64;
+    fn __mochios_wake_address_u32(address: *const Atomic<u32>, maximum_count: usize) -> u64;
+}
+
+#[cfg(target_os = "mochios")]
+pub fn futex_wait(futex: &Atomic<u32>, expected: u32, timeout: Option<Duration>) -> bool {
+    const DEADLINE_REACHED: u64 = 2;
+    let timeout_nanoseconds = timeout
+        .map(|duration| u64::try_from(duration.as_nanos()).unwrap_or(u64::MAX))
+        .unwrap_or(u64::MAX);
+    let result = unsafe { __mochios_wait_on_address_u32(futex, expected, timeout_nanoseconds) };
+    result != DEADLINE_REACHED
+}
+
+#[cfg(target_os = "mochios")]
+pub fn futex_wake(futex: &Atomic<u32>) -> bool {
+    let result = unsafe { __mochios_wake_address_u32(futex, 1) };
+    result == 1
+}
+
+#[cfg(target_os = "mochios")]
+pub fn futex_wake_all(futex: &Atomic<u32>) {
+    unsafe {
+        __mochios_wake_address_u32(futex, usize::MAX);
+    }
+}
 
 /// Waits for a `futex_wake` operation to wake us.
 ///
