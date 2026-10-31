@@ -370,7 +370,19 @@ pub fn current_exe() -> io::Result<PathBuf> {
     path.canonicalize()
 }
 
-#[cfg(any(target_os = "espidf", target_os = "horizon", target_os = "vita", target_os = "mochios"))]
+#[cfg(target_os = "mochios")]
+pub fn current_exe() -> io::Result<PathBuf> {
+    let name = unsafe { libc::getexecname() };
+    if name.is_null() {
+        return Err(io::Error::last_os_error());
+    }
+    // The userspace runtime owns a stable startup snapshot, independently of
+    // mutable argv, environment and the current working directory.
+    let name = unsafe { CStr::from_ptr(name) };
+    Ok(PathBuf::from(OsStr::from_bytes(name.to_bytes())))
+}
+
+#[cfg(any(target_os = "espidf", target_os = "horizon", target_os = "vita"))]
 pub fn current_exe() -> io::Result<PathBuf> {
     crate::sys::pal::unsupported::unsupported()
 }
