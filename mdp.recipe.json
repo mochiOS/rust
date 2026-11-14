@@ -1,0 +1,7 @@
+{
+  "format": 1,
+  "steps": [
+    "$(PROJECT)/mdp/source-fingerprint.sh $(PROJECT) $(MMAKE_OUT)/fingerprints/rust.sha256",
+    "$(PROJECT)/mdp/prepare-rust-sysroot.sh $(ROOT) $(MMAKE_OUT)"
+  ]
+}

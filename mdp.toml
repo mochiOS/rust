@@ -1,0 +1,8 @@
+format = 1
+
+[build]
+resolution = false
+command = ["mdp", "pipeline", "--recipe", "mdp.recipe.json"]
+requires = ["context"]
+sources = []
+outputs = ["out/rust-std/sysroot-overlay/.ready"]
