@@ -5,4 +5,4 @@ resolution = false
 command = ["mdp", "pipeline", "--recipe", "mdp.recipe.json"]
 requires = ["context"]
 sources = []
-outputs = ["out/rust-std/sysroot-overlay/.ready"]
+outputs = ["out/cache/rust/sysroot-overlay/.ready"]
